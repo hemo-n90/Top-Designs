@@ -1,0 +1,313 @@
+You are a senior full-stack engineer. Build a production-ready FULL-STACK e-commerce web app for a Saudi kitchen manufacturer/showroom named: "قمة التصاميم".
+
+Tech Stack (must use):
+- Frontend: React + TypeScript (Vite)
+- Backend: Node.js + Express (TypeScript)
+- Database: PostgreSQL
+- ORM: Prisma (preferred) OR Sequelize (choose one and implement fully)
+- Auth: JWT for admin (email/password). Customer login is optional (guest checkout allowed).
+- Styling: TailwindCSS (preferred) OR MUI (choose one)
+- Data fetching: React Query (preferred) or SWR
+- Forms: React Hook Form + Zod validation
+- Image storage: store image URLs in DB. Use local uploads folder for dev + clear TODO notes for S3 later.
+
+CRITICAL DESIGN REQUIREMENT (Mobile Friendly):
+- The UI MUST be mobile-first and fully responsive.
+- Design for small screens first (320px+), then scale to tablet and desktop.
+- Mobile navigation: hamburger menu / drawer.
+- Grids adapt: 1 column mobile, 2 tablet, 3-4 desktop.
+- Product image gallery supports swipe on mobile.
+- Forms optimized for mobile: large tap targets, correct input types (tel for phone), one-column layout on mobile.
+- Performance: lazy-load images, use responsive sizes, avoid heavy components.
+
+Language / UX:
+- The entire UI is Arabic and MUST be RTL (dir="rtl") across all pages.
+- Use modern Arabic typography.
+- Currency is SAR (ر.س).
+- Brand theme: Purple primary color (matching the logo), with clean white/gray/black neutrals.
+- Tone: premium, minimal, clean.
+
+Business Summary:
+The website is an e-commerce catalog for kitchens in Saudi Arabia. Customers browse products/projects, view photos, filter by type/material, add to cart, and request a home measurement visit (معاينة) where a staff member visits the home to take measurements.
+
+Kitchen Material/Types (must be supported):
+- ألمنيوم
+- خشب
+- صاج
+- فورميكا
+
+Pricing Model (IMPORTANT):
+- Prices are calculated per meter (per "متر طولي").
+- Each product has a "price_per_meter" in SAR.
+- In product details and cart, the user selects "عدد الأمتار" (meters) as a numeric input (decimal allowed, e.g., 2.5).
+- Total item price = price_per_meter * meters.
+- Cart subtotal is the sum of all item totals.
+- If a product is custom priced, show "حسب الطلب" and disable direct checkout price, allowing "طلب عرض سعر" flow.
+
+Core Features:
+
+1) Public Pages
+A) Home Page
+- Arabic hero headline + CTAs: "تصفح الأعمال" and "اطلب معاينة"
+- Featured categories
+- Featured products/projects
+- Testimonials (seeded/static is fine)
+- Footer: contact, WhatsApp link placeholder, address/city, working hours
+
+B) Catalog Page (Products/Projects)
+- Grid of product cards (image, title, material type, short description, price per meter or "حسب الطلب")
+- Filters:
+  - Category
+  - Material type (الخامة): dropdown [ألمنيوم, خشب, صاج, فورميكا]
+  - Color (optional)
+  - Price per meter range (optional)
+  - Search by title
+- Sort: newest, price per meter low/high
+- Pagination
+
+C) Product/Project Details
+- Image gallery (swipe on mobile)
+- Show:
+  - العنوان
+  - الوصف
+  - الخامة
+  - الألوان المتاحة
+  - السعر لكل متر (ر.س/متر) OR "حسب الطلب"
+- Meters selector:
+  - Label: "عدد الأمتار"
+  - Numeric input with step=0.5 (or 0.1) and min=0.5
+  - Live calculated total price (if not custom priced)
+- Button: "إضافة للسلة"
+- Related items
+
+D) Cart
+- List items with:
+  - product title + material type
+  - meters input (editable inside cart)
+  - price_per_meter
+  - item total (price_per_meter * meters)
+  - remove button
+- Subtotal (SAR)
+- CTA:
+  - If all items have price_per_meter: "إتمام الطلب"
+  - If any custom-priced items: show "طلب عرض سعر" and collect contact details
+
+E) Checkout (Simple)
+- Customer details:
+  - الاسم الكامل
+  - رقم الجوال (validate Saudi format)
+  - المدينة
+  - الحي
+  - العنوان التفصيلي
+  - ملاحظات (optional)
+- Create an order in DB with items (including meters and calculated totals).
+- Success page with order number.
+
+F) Request Visit (معاينة) Page
+- Form fields (Arabic):
+  - الاسم الكامل
+  - رقم الجوال (Saudi validation)
+  - المدينة
+  - الحي
+  - العنوان التفصيلي
+  - نوع/الخامة المطلوبة (dropdown: ألمنيوم/خشب/صاج/فورميكا)
+  - عدد الأمتار التقريبي (optional numeric)
+  - ملاحظات إضافية
+  - Preferred date/time (optional)
+- On submit: create a visit_request record and show success message.
+- Backend notification placeholder (console log) and store in DB.
+
+2) Admin Dashboard (Protected)
+- Admin login (JWT)
+- Admin layout responsive (works on mobile too)
+
+Admin Features:
+A) Manage Categories (CRUD)
+- name_ar, slug
+
+B) Manage Products/Projects (CRUD)
+Fields:
+- title_ar
+- description_ar
+- category_id
+- material_type (one of: ألمنيوم, خشب, صاج, فورميكا)
+- price_per_meter (number) and is_custom_price (boolean)
+- colors (list of Arabic color names)
+- images (multiple URLs)
+- is_featured (boolean)
+
+C) Manage Orders (CRUD-lite)
+- List orders + status updates (new/processing/delivered/cancelled)
+- View order details and items (meters, price_per_meter, totals)
+
+D) Manage Visit Requests
+- List + status updates: new / contacted / scheduled / done / cancelled
+- View full details
+
+E) Simple Analytics
+- total products
+- total orders
+- total visit requests
+- new requests this week
+
+Database Schema (PostgreSQL):
+Create ORM models + migrations for:
+
+- admin_users:
+  id, email, password_hash, created_at
+
+- categories:
+  id, name_ar, slug, created_at
+
+- products:
+  id, title_ar, description_ar,
+  category_id (FK),
+  material_type (enum/string),
+  price_per_meter (numeric nullable),
+  is_custom_price (boolean),
+  is_featured (boolean),
+  created_at
+
+- product_images:
+  id, product_id (FK), url
+
+- product_colors:
+  id, product_id (FK), color_name_ar
+
+- cart is client-side (localStorage) OR server-side optional; implement client-side for simplicity.
+
+- orders:
+  id, full_name, phone, city, district, address, notes,
+  status, subtotal_amount, created_at
+
+- order_items:
+  id, order_id (FK), product_id (FK),
+  meters (numeric),
+  price_per_meter (numeric nullable),
+  line_total (numeric nullable),
+  title_snapshot_ar, material_snapshot, created_at
+
+- visit_requests:
+  id, full_name, phone, city, district, address,
+  material_type, approx_meters (numeric nullable),
+  notes, preferred_datetime, status, created_at
+
+API Endpoints (Express):
+
+Public:
+- GET /api/categories
+- GET /api/products (filters: category, material_type, search, sort, page)
+- GET /api/products/:id
+- POST /api/visit-requests
+- POST /api/orders (create order from checkout)
+
+Admin:
+- POST /api/admin/login
+- CRUD /api/admin/categories
+- CRUD /api/admin/products
+- GET /api/admin/orders
+- GET /api/admin/orders/:id
+- PATCH /api/admin/orders/:id (status)
+- GET /api/admin/visit-requests
+- PATCH /api/admin/visit-requests/:id (status)
+
+Backend Best Practices:
+- Validate and sanitize inputs (Zod on server or equivalent)
+- bcrypt password hashing
+- rate limit login endpoint
+- consistent JSON error responses
+- CORS configured with CLIENT_URL
+- dotenv env variables
+- logging (basic)
+
+Frontend Requirements:
+- React Router pages:
+  / (home)
+  /catalog
+  /product/:id
+  /cart
+  /checkout
+  /visit-request
+  /admin/login
+  /admin (dashboard)
+  /admin/products
+  /admin/categories
+  /admin/orders
+  /admin/visit-requests
+- Arabic copywriting for all UI
+- RTL everywhere
+- Reusable components (Navbar with mobile drawer, Footer, ProductCard, Filters, Inputs)
+- Cart stored in localStorage
+- Meters input controls in product details + cart:
+  - allow decimal meters
+  - prevent invalid values
+  - recalc totals instantly
+
+Replit Project Structure:
+- Monorepo:
+  /server (Express TS)
+  /client (React TS Vite)
+- Provide scripts to run both (concurrently)
+- Provide README:
+  - setup steps for Replit/local
+  - env vars: DATABASE_URL, JWT_SECRET, PORT, CLIENT_URL
+  - migrate DB
+  - seed script that creates:
+    - 4 categories
+    - 10 products across all 4 material types
+    - images URLs placeholders
+    - 1 admin user (print credentials in README)
+
+Deliverables:
+- Fully working full-stack app
+- DB migrations + seed script
+- Admin dashboard CRUD works
+- Mobile-first responsive UI
+- Per-meter pricing fully implemented (product -> cart -> checkout -> order storage)
+- Clean TypeScript code throughout
+- Only leave placeholders for optional SMS/WhatsApp notifications with clear TODOs.
+
+Important Branding:
+- Site name in Arabic: "قمة التصاميم"
+- Primary color: Purple
+- Premium, minimal, Saudi-focused design.
+VISUAL IDENTITY / BRANDING (VERY IMPORTANT):
+- The visual identity must look PREMIUM and very polished (high-end showroom feel).
+- Use a cohesive design system:
+  - Define a full design token set: colors, spacing scale, border radius, shadows, typography scale.
+  - Use Purple as the primary brand color, but keep it elegant (avoid overly saturated purple).
+  - Add a secondary accent (light lavender or muted gold) ONLY if it helps, otherwise keep minimal.
+  - Backgrounds: clean whites + very light gray surfaces.
+  - Cards: soft shadow, rounded corners, consistent padding.
+  - Buttons: strong hierarchy (primary/secondary/ghost), hover/active states, focus rings.
+  - Inputs: modern, clean, with clear error states, helper text, and icons when useful.
+- Typography:
+  - Use a modern Arabic font (e.g., Cairo, Tajawal, IBM Plex Sans Arabic). Load via Google Fonts.
+  - Use a clear type scale: large hero, section titles, body, small helper text.
+  - Proper line-height for Arabic (avoid cramped lines).
+- Layout:
+  - Use generous whitespace and a clean grid system.
+  - Sections should have strong visual separation using spacing, subtle dividers, and background blocks.
+  - Ensure consistent alignment in RTL.
+- Imagery:
+  - Product cards and gallery should feel luxurious:
+    - Full-width images with consistent aspect ratio
+    - Smooth transitions and skeleton loading
+    - Optional subtle gradient overlay on hero images
+- UI details that make it feel premium:
+  - Micro-interactions: subtle transitions (150-250ms), hover elevation, button press states.
+  - Use icons (lucide-react) in a minimal way (cart, search, filter, phone, location).
+  - Add a modern hero section with a tasteful background pattern or soft gradient in purple tones.
+- Mobile-first:
+  - Ensure the design is stunning on mobile:
+    - Sticky bottom cart summary/button (optional)
+    - Bottom sheet filters on mobile (preferred)
+    - Large touch targets, easy scanning
+
+Design Deliverable:
+- Create a /client/src/theme (or similar) that defines:
+  - color palette tokens
+  - typography tokens
+  - spacing/radius/shadow tokens
+- Apply the tokens consistently across all components.
+- The site must look cohesive, not “default template”.
