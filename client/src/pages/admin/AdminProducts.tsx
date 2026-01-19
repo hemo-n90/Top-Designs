@@ -36,7 +36,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AdminLayout } from "./AdminLayout";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { MATERIAL_TYPES, type ProductWithDetails, type Category } from "@shared/schema";
+import {
+  MATERIAL_TYPES,
+  type ProductWithDetails,
+  type Category,
+} from "@shared/schema";
 
 const productFormSchema = z.object({
   titleAr: z.string().min(2, "العنوان مطلوب"),
@@ -54,7 +58,8 @@ type ProductFormData = z.infer<typeof productFormSchema>;
 
 export default function AdminProducts() {
   const [isOpen, setIsOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<ProductWithDetails | null>(null);
+  const [editingProduct, setEditingProduct] =
+    useState<ProductWithDetails | null>(null);
   const { toast } = useToast();
 
   const { data: products, isLoading } = useQuery<ProductWithDetails[]>({
@@ -86,8 +91,18 @@ export default function AdminProducts() {
         ...data,
         categoryId: data.categoryId ? parseInt(data.categoryId) : null,
         pricePerMeter: data.pricePerMeter || null,
-        images: data.images ? data.images.split(",").map((s) => s.trim()).filter(Boolean) : [],
-        colors: data.colors ? data.colors.split(",").map((s) => s.trim()).filter(Boolean) : [],
+        images: data.images
+          ? data.images
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [],
+        colors: data.colors
+          ? data.colors
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [],
       };
       const response = await apiRequest("POST", "/api/admin/products", payload);
       return response.json();
@@ -109,10 +124,24 @@ export default function AdminProducts() {
         ...data,
         categoryId: data.categoryId ? parseInt(data.categoryId) : null,
         pricePerMeter: data.pricePerMeter || null,
-        images: data.images ? data.images.split(",").map((s) => s.trim()).filter(Boolean) : [],
-        colors: data.colors ? data.colors.split(",").map((s) => s.trim()).filter(Boolean) : [],
+        images: data.images
+          ? data.images
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [],
+        colors: data.colors
+          ? data.colors
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [],
       };
-      const response = await apiRequest("PATCH", `/api/admin/products/${data.id}`, payload);
+      const response = await apiRequest(
+        "PATCH",
+        `/api/admin/products/${data.id}`,
+        payload,
+      );
       return response.json();
     },
     onSuccess: () => {
@@ -180,7 +209,10 @@ export default function AdminProducts() {
           </div>
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openCreateDialog} data-testid="button-add-product">
+              <Button
+                onClick={openCreateDialog}
+                data-testid="button-add-product"
+              >
                 <Plus className="h-4 w-4 ml-2" />
                 إضافة منتج
               </Button>
@@ -192,7 +224,10 @@ export default function AdminProducts() {
                 </DialogTitle>
               </DialogHeader>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
                   <FormField
                     control={form.control}
                     name="titleAr"
@@ -214,7 +249,10 @@ export default function AdminProducts() {
                       <FormItem>
                         <FormLabel>الوصف</FormLabel>
                         <FormControl>
-                          <Textarea {...field} data-testid="input-product-description" />
+                          <Textarea
+                            {...field}
+                            data-testid="input-product-description"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -228,7 +266,10 @@ export default function AdminProducts() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>التصنيف</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="اختر التصنيف" />
@@ -236,7 +277,10 @@ export default function AdminProducts() {
                             </FormControl>
                             <SelectContent>
                               {categories.map((cat) => (
-                                <SelectItem key={cat.id} value={cat.id.toString()}>
+                                <SelectItem
+                                  key={cat.id}
+                                  value={cat.id.toString()}
+                                >
                                   {cat.nameAr}
                                 </SelectItem>
                               ))}
@@ -253,7 +297,10 @@ export default function AdminProducts() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>نوع الخامة</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="اختر الخامة" />
@@ -298,7 +345,9 @@ export default function AdminProducts() {
                       name="isCustomPrice"
                       render={({ field }) => (
                         <FormItem className="flex items-center justify-between rounded-lg border p-3">
-                          <FormLabel className="cursor-pointer">سعر حسب الطلب</FormLabel>
+                          <FormLabel className="cursor-pointer">
+                            سعر حسب الطلب
+                          </FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -314,7 +363,9 @@ export default function AdminProducts() {
                       name="isFeatured"
                       render={({ field }) => (
                         <FormItem className="flex items-center justify-between rounded-lg border p-3">
-                          <FormLabel className="cursor-pointer">منتج مميز</FormLabel>
+                          <FormLabel className="cursor-pointer">
+                            منتج مميز
+                          </FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -360,7 +411,9 @@ export default function AdminProducts() {
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={createMutation.isPending || updateMutation.isPending}
+                    disabled={
+                      createMutation.isPending || updateMutation.isPending
+                    }
                   >
                     {(createMutation.isPending || updateMutation.isPending) && (
                       <Loader2 className="h-4 w-4 ml-2 animate-spin" />
@@ -382,12 +435,17 @@ export default function AdminProducts() {
         ) : products && products.length > 0 ? (
           <div className="space-y-4">
             {products.map((product) => (
-              <Card key={product.id} data-testid={`admin-product-${product.id}`}>
+              <Card
+                key={product.id}
+                data-testid={`admin-product-${product.id}`}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-md overflow-hidden bg-muted shrink-0">
                       <img
-                        src={product.images?.[0]?.url || "/placeholder-kitchen.jpg"}
+                        src={
+                          product.images?.[0]?.url || "/placeholder-kitchen.jpg"
+                        }
                         alt={product.titleAr}
                         className="w-full h-full object-cover"
                       />
@@ -399,7 +457,9 @@ export default function AdminProducts() {
                             {product.titleAr}
                           </h3>
                           <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="secondary">{product.materialType}</Badge>
+                            <Badge variant="secondary">
+                              {product.materialType}
+                            </Badge>
                             {product.isFeatured && (
                               <Badge variant="default">مميز</Badge>
                             )}
@@ -427,8 +487,8 @@ export default function AdminProducts() {
                         {product.isCustomPrice
                           ? "حسب الطلب"
                           : product.pricePerMeter
-                          ? `${product.pricePerMeter} ر.س/متر`
-                          : "-"}
+                            ? `${product.pricePerMeter} ر.س/متر`
+                            : "-"}
                       </p>
                     </div>
                   </div>

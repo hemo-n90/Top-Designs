@@ -2,7 +2,12 @@ import { Link, useLocation } from "wouter";
 import { Menu, X, ShoppingCart, Phone } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart";
 import { Badge } from "@/components/ui/badge";
 
@@ -23,10 +28,13 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-lg">
-              ق
+            <div className="h-10 w-10 overflow-hidden rounded-md border bg-white flex items-center justify-center">
+              <img src="../logo.jpg" alt="قمة التصاميم" />
             </div>
-            <span className="text-lg font-bold text-foreground hidden sm:inline-block" data-testid="text-brand-name">
+            <span
+              className="text-lg font-bold text-foreground hidden sm:inline-block"
+              data-testid="text-brand-name"
+            >
               قمة التصاميم
             </span>
           </Link>
@@ -59,13 +67,23 @@ export function Navbar() {
               asChild
               data-testid="button-whatsapp"
             >
-              <a href="https://wa.me/966500000000" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://wa.me/966500000000"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Phone className="h-5 w-5" />
               </a>
             </Button>
 
             {/* Cart */}
-            <Button variant="ghost" size="icon" className="relative" asChild data-testid="button-cart">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              asChild
+              data-testid="button-cart"
+            >
               <Link href="/cart">
                 <ShoppingCart className="h-5 w-5" />
                 {itemCount > 0 && (
@@ -82,7 +100,11 @@ export function Navbar() {
             {/* Mobile Menu */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" data-testid="button-mobile-menu">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  data-testid="button-mobile-menu"
+                >
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
